@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>썸네일 메이커</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&family=Black+Han+Sans&family=Gasoek+One&family=Do+Hyeon&family=Jua&family=Nanum+Pen+Script&family=Gugi&family=East+Sea+Dokdo&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Noto Sans KR', sans-serif; }
+        .font-noto-sans-kr { font-family: 'Noto Sans KR', sans-serif; }
+        .font-black-han-sans { font-family: 'Black Han Sans', sans-serif; }
+        .font-gasoek-one { font-family: 'Gasoek One', sans-serif; }
+        .font-do-hyeon { font-family: 'Do Hyeon', sans-serif; }
+        .font-jua { font-family: 'Jua', sans-serif; }
+        .font-nanum-pen-script { font-family: 'Nanum Pen Script', sans-serif; }
+        .font-gugi { font-family: 'Gugi', sans-serif; }
+        .font-east-sea-dokdo { font-family: 'East Sea Dokdo', sans-serif; }
+        
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #2d3748; }
+        ::-webkit-scrollbar-thumb { background: #4a5568; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #718096; }
+        .layer-item.selected { background-color: #4a5568; }
+    </style>
+</head>
+<body class="bg-gray-900 text-white antialiased">
+
+    <div class="container mx-auto p-4 md:p-8">
+        <header class="text-center mb-8">
+            <h1 class="text-4xl md:text-5xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-600">썸네일 메이커커</h1>
+            <p class="text-gray-400 mt-2">공연 직캠 썸네일 만들기</p>
+        </header>
+
+        <div class="flex flex-col gap-8">
+            <!-- 캔버스 미리보기 -->
+            <div class="w-full">
+                <div class="aspect-w-16 aspect-h-9 bg-gray-800 rounded-2xl shadow-lg flex items-center justify-center overflow-hidden">
+                     <canvas id="thumbnail-canvas" width="1280" height="720" class="w-full h-full object-contain cursor-grab"></canvas>
+                </div>
+            </div>
+
+            <!-- 컨트롤 패널 -->
+            <div class="w-full bg-gray-800 p-6 rounded-2xl shadow-lg grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <!-- 1. 배경 이미지 -->
+                <div class="space-y-4">
+                    <h2 class="text-2xl font-bold border-b-2 border-purple-500 pb-2 mb-4">1. 배경 이미지</h2>
+                    <input type="file" id="bg-image-input" accept="image/*" class="block w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-purple-600 file:text-white hover:file:bg-purple-700 cursor-pointer">
+                    <p class="text-xs text-gray-500 mt-2">파일을 선택하거나, 복사한 이미지를 페이지에 붙여넣기(Ctrl+V) 하세요.</p>
+                </div>
+
+                <!-- 2. 텍스트 추가 -->
+                <div class="space-y-4">
+                    <h2 class="text-2xl font-bold border-b-2 border-purple-500 pb-2 mb-4">2. 텍스트 추가</h2>
+                    <div class="space-y-2">
+                        <textarea id="new-text-input" rows="2" placeholder="여기에 텍스트를 입력하세요.&#10;Shift+Enter로 줄바꿈 가능" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 focus:ring-2 focus:ring-purple-500 focus:outline-none transition"></textarea>
+                        <button id="add-text-btn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg transition">텍스트 추가</button>
+                    </div>
+                    <div id="text-layers" class="mt-4 space-y-2 max-h-48 overflow-y-auto">
+                        <!-- 추가된 텍스트 레이어가 여기에 표시됩니다. -->
+                    </div>
+                </div>
+
+                <!-- 3. 텍스트 설정 -->
+                <div id="style-editor" class="space-y-4 md:col-span-2 lg:col-span-1">
+                    <h2 class="text-2xl font-bold border-b-2 border-purple-500 pb-2 mb-4">3. 텍스트 설정</h2>
+                    <div id="style-editor-content" class="hidden space-y-4">
+                        <div>
+                            <label for="font-select" class="block text-sm font-medium text-gray-300 mb-1">폰트 선택</label>
+                            <select id="font-select" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 focus:ring-2 focus:ring-purple-500 focus:outline-none transition">
+                                <option value="Black Han Sans" class="font-black-han-sans">Black Han Sans (굵은 제목)</option>
+                                <option value="Jua" class="font-jua">Jua (귀여운 제목)</option>
+                                <option value="Gasoek One" class="font-gasoek-one">Gasoek One (개성있는 제목)</option>
+                                <option value="Do Hyeon" class="font-do-hyeon">Do Hyeon (단정한 제목)</option>
+                                <option value="Gugi" class="font-gugi">Gugi (복고풍)</option>
+                                <option value="East Sea Dokdo" class="font-east-sea-dokdo">East Sea Dokdo (붓글씨)</option>
+                                <option value="Nanum Pen Script" class="font-nanum-pen-script">Nanum Pen Script (손글씨)</option>
+                                <option value="Noto Sans KR" class="font-noto-sans-kr">Noto Sans KR (기본 본문)</option>
+                            </select>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label for="font-size" class="block text-sm font-medium text-gray-300 mb-1">글자 크기: <span id="font-size-value">80</span>px</label>
+                                <input type="range" id="font-size" min="10" max="250" value="80" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-pink-500">
+                            </div>
+                            <div>
+                                <label for="font-color" class="block text-sm font-medium text-gray-300 mb-1">글자 색상</label>
+                                <input type="color" id="font-color" value="#FFFFFF" class="w-full h-10 bg-gray-700 border border-gray-600 rounded-lg cursor-pointer p-1">
+                            </div>
+                        </div>
+                        <div class="space-y-2 pt-4 border-t border-gray-700">
+                            <div class="flex items-center justify-between">
+                                <label for="outline-enabled" class="text-sm font-medium text-gray-300">윤곽선 사용</label>
+                                <input type="checkbox" id="outline-enabled" class="h-4 w-4 rounded border-gray-300 text-purple-600 focus:ring-purple-500">
+                            </div>
+                            <div id="outline-controls" class="hidden space-y-2">
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label for="outline-width" class="block text-sm font-medium text-gray-300 mb-1">두께: <span id="outline-width-value">5</span>px</label>
+                                        <input type="range" id="outline-width" min="1" max="30" value="5" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-pink-500">
+                                    </div>
+                                    <div>
+                                        <label for="outline-color" class="block text-sm font-medium text-gray-300 mb-1">색상</label>
+                                        <input type="color" id="outline-color" value="#000000" class="w-full h-10 bg-gray-700 border border-gray-600 rounded-lg cursor-pointer p-1">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                     <p id="style-editor-placeholder" class="text-gray-500 text-sm">수정할 텍스트를 선택하세요.</p>
+                </div>
+
+                <!-- 4. 저장하기 -->
+                <div class="space-y-4">
+                    <h2 class="text-2xl font-bold border-b-2 border-purple-500 pb-2 mb-4">4. 저장하기</h2>
+                     <div>
+                        <label for="filename-input" class="block text-sm font-medium text-gray-300 mb-1">파일 이름</label>
+                        <input type="text" id="filename-input" value="thumbnail" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 focus:ring-2 focus:ring-purple-500 focus:outline-none transition">
+                    </div>
+                    <button id="download-btn" class="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold py-3 px-4 rounded-lg shadow-lg transform hover:scale-105 transition-transform duration-300 ease-in-out">
+                        썸네일 다운로드 (PNG)
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('thumbnail-canvas');
+        const ctx = canvas.getContext('2d');
+
+        // 컨트롤 패널 요소
+        const bgImageInput = document.getElementById('bg-image-input');
+        const newTextInput = document.getElementById('new-text-input');
+        const addTextBtn = document.getElementById('add-text-btn');
+        const textLayersContainer = document.getElementById('text-layers');
+        const styleEditorContent = document.getElementById('style-editor-content');
+        const styleEditorPlaceholder = document.getElementById('style-editor-placeholder');
+        const fontSelect = document.getElementById('font-select');
+        const fontSizeInput = document.getElementById('font-size');
+        const fontSizeValue = document.getElementById('font-size-value');
+        const fontColorInput = document.getElementById('font-color');
+        const filenameInput = document.getElementById('filename-input');
+        const downloadBtn = document.getElementById('download-btn');
+        // 윤곽선 요소
+        const outlineEnabledCheckbox = document.getElementById('outline-enabled');
+        const outlineControls = document.getElementById('outline-controls');
+        const outlineWidthInput = document.getElementById('outline-width');
+        const outlineWidthValue = document.getElementById('outline-width-value');
+        const outlineColorInput = document.getElementById('outline-color');
+
+        // 상태 관리
+        let state = {
+            backgroundImage: { img: null, x: canvas.width / 2, y: canvas.height / 2, scale: 1 },
+            texts: [],
+            selectedObject: null,
+            isDragging: false,
+            dragStartX: 0,
+            dragStartY: 0,
+            nextTextId: 0
+        };
+
+        // 캔버스 다시 그리기
+        function redrawCanvas() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#1a202c';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            if (state.backgroundImage.img) {
+                const bg = state.backgroundImage;
+                const w = bg.img.width * bg.scale;
+                const h = bg.img.height * bg.scale;
+                ctx.drawImage(bg.img, bg.x - w / 2, bg.y - h / 2, w, h);
+            } else {
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+                ctx.font = "bold 40px 'Noto Sans KR'";
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('배경 이미지를 추가하거나 붙여넣으세요.', canvas.width / 2, canvas.height / 2);
+            }
+
+            state.texts.forEach(text => {
+                ctx.font = `${text.weight || '700'} ${text.size}px '${text.font}'`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                const lines = text.text.split('\n');
+                const lineHeight = text.size * 1.2;
+                ctx.shadowColor = 'rgba(0, 0, 0, 0.8)';
+                ctx.shadowBlur = 10;
+                ctx.shadowOffsetX = 3;
+                ctx.shadowOffsetY = 3;
+
+                lines.forEach((line, index) => {
+                    const yPos = text.y + (index * lineHeight) - (lines.length - 1) * lineHeight / 2;
+                    if (text.outlineEnabled) {
+                        ctx.strokeStyle = text.outlineColor;
+                        ctx.lineWidth = text.outlineWidth;
+                        ctx.lineJoin = 'round';
+                        ctx.strokeText(line, text.x, yPos);
+                    }
+                    ctx.fillStyle = text.color;
+                    ctx.fillText(line, text.x, yPos);
+                });
+                ctx.shadowColor = 'transparent';
+                ctx.shadowBlur = 0;
+            });
+        }
+
+        // 텍스트 레이어 UI 업데이트
+        function updateTextLayersUI() {
+            textLayersContainer.innerHTML = '';
+            state.texts.forEach(text => {
+                const layerDiv = document.createElement('div');
+                layerDiv.className = 'layer-item flex justify-between items-center p-2 bg-gray-700 rounded-lg cursor-pointer hover:bg-gray-600';
+                layerDiv.dataset.id = text.id;
+                if (state.selectedObject && state.selectedObject.id === text.id) {
+                    layerDiv.classList.add('selected');
+                }
+                const textSpan = document.createElement('span');
+                textSpan.className = 'truncate';
+                textSpan.textContent = text.text.split('\n')[0] || '(빈 텍스트)';
+                layerDiv.appendChild(textSpan);
+                const deleteBtn = document.createElement('button');
+                deleteBtn.textContent = '삭제';
+                deleteBtn.className = 'text-xs bg-red-600 hover:bg-red-700 text-white font-bold py-1 px-2 rounded';
+                deleteBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    state.texts = state.texts.filter(t => t.id !== text.id);
+                    if (state.selectedObject && state.selectedObject.id === text.id) {
+                        state.selectedObject = null;
+                        selectObject(null);
+                    }
+                    updateTextLayersUI();
+                    redrawCanvas();
+                };
+                layerDiv.appendChild(deleteBtn);
+                layerDiv.onclick = () => { selectObject(text); };
+                textLayersContainer.appendChild(layerDiv);
+            });
+        }
+        
+        // 객체 선택
+        function selectObject(obj) {
+            state.selectedObject = obj;
+            if (obj && obj.type === 'text') {
+                styleEditorContent.classList.remove('hidden');
+                styleEditorPlaceholder.classList.add('hidden');
+                fontSelect.value = obj.font;
+                fontSizeInput.value = obj.size;
+                fontSizeValue.textContent = obj.size;
+                fontColorInput.value = obj.color;
+                outlineEnabledCheckbox.checked = obj.outlineEnabled;
+                outlineControls.style.display = obj.outlineEnabled ? 'block' : 'none';
+                outlineWidthInput.value = obj.outlineWidth;
+                outlineWidthValue.textContent = obj.outlineWidth;
+                outlineColorInput.value = obj.outlineColor;
+            } else {
+                styleEditorContent.classList.add('hidden');
+                styleEditorPlaceholder.classList.remove('hidden');
+            }
+            updateTextLayersUI();
+            redrawCanvas();
+        }
+
+        // 이미지 파일 처리
+        function handleImageFile(file) {
+            if (!file || !file.type.startsWith('image/')) return;
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const img = new Image();
+                img.onload = () => {
+                    const canvasAspect = canvas.width / canvas.height;
+                    const imgAspect = img.width / img.height;
+                    let scale = (imgAspect > canvasAspect) ? canvas.width / img.width : canvas.height / img.height;
+                    state.backgroundImage = { img, x: canvas.width / 2, y: canvas.height / 2, scale };
+                    redrawCanvas();
+                };
+                img.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // 이벤트 리스너 설정
+        function setupEventListeners() {
+            bgImageInput.addEventListener('change', (e) => handleImageFile(e.target.files[0]));
+            window.addEventListener('paste', (e) => {
+                const file = e.clipboardData.files[0];
+                if (file) { handleImageFile(file); e.preventDefault(); }
+            });
+
+            addTextBtn.addEventListener('click', () => {
+                const textContent = newTextInput.value;
+                if (!textContent.trim()) return;
+                const newText = {
+                    id: state.nextTextId++, type: 'text', text: textContent,
+                    x: canvas.width / 2, y: canvas.height / 2,
+                    font: 'Black Han Sans', size: 100, color: '#FFFFFF', weight: '900',
+                    outlineEnabled: true, outlineColor: '#000000', outlineWidth: 5
+                };
+                state.texts.push(newText);
+                newTextInput.value = '';
+                selectObject(newText);
+                updateTextLayersUI();
+                redrawCanvas();
+            });
+
+            const updateSelectedObjectStyle = () => {
+                if (state.selectedObject && state.selectedObject.type === 'text') {
+                    const obj = state.selectedObject;
+                    obj.font = fontSelect.value;
+                    obj.size = fontSizeInput.value;
+                    obj.color = fontColorInput.value;
+                    obj.outlineEnabled = outlineEnabledCheckbox.checked;
+                    obj.outlineWidth = outlineWidthInput.value;
+                    obj.outlineColor = outlineColorInput.value;
+                    redrawCanvas();
+                    updateTextLayersUI();
+                }
+            };
+            
+            fontSelect.addEventListener('change', updateSelectedObjectStyle);
+            fontSizeInput.addEventListener('input', (e) => { fontSizeValue.textContent = e.target.value; updateSelectedObjectStyle(); });
+            fontColorInput.addEventListener('input', updateSelectedObjectStyle);
+            outlineEnabledCheckbox.addEventListener('change', (e) => {
+                outlineControls.style.display = e.target.checked ? 'block' : 'none';
+                updateSelectedObjectStyle();
+            });
+            outlineWidthInput.addEventListener('input', (e) => { outlineWidthValue.textContent = e.target.value; updateSelectedObjectStyle(); });
+            outlineColorInput.addEventListener('input', updateSelectedObjectStyle);
+
+            downloadBtn.addEventListener('click', () => {
+                let filename = filenameInput.value.trim();
+                if (!filename) {
+                    filename = 'thumbnail';
+                }
+                const link = document.createElement('a');
+                link.download = `${filename}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            });
+
+            canvas.addEventListener('mousedown', (e) => {
+                const rect = canvas.getBoundingClientRect();
+                const scaleX = canvas.width / rect.width;
+                const scaleY = canvas.height / rect.height;
+                const mouseX = (e.clientX - rect.left) * scaleX;
+                const mouseY = (e.clientY - rect.top) * scaleY;
+                
+                state.isDragging = true;
+                state.dragStartX = mouseX;
+                state.dragStartY = mouseY;
+
+                let objectSelected = false;
+                for (let i = state.texts.length - 1; i >= 0; i--) {
+                    const text = state.texts[i];
+                    const lines = text.text.split('\n');
+                    const lineHeight = text.size * 1.2;
+                    const totalHeight = lines.length * lineHeight;
+                    ctx.font = `${text.weight || '700'} ${text.size}px '${text.font}'`;
+                    const textWidth = Math.max(...lines.map(line => ctx.measureText(line).width));
+
+                    if (mouseX > text.x - textWidth / 2 && mouseX < text.x + textWidth / 2 &&
+                        mouseY > text.y - totalHeight / 2 && mouseY < text.y + totalHeight / 2) {
+                        selectObject(text);
+                        objectSelected = true;
+                        break;
+                    }
+                }
+                if (!objectSelected) { selectObject(state.backgroundImage); }
+            });
+
+            canvas.addEventListener('mousemove', (e) => {
+                if (!state.isDragging || !state.selectedObject) return;
+                const rect = canvas.getBoundingClientRect();
+                const scaleX = canvas.width / rect.width;
+                const scaleY = canvas.height / rect.height;
+                const mouseX = (e.clientX - rect.left) * scaleX;
+                const mouseY = (e.clientY - rect.top) * scaleY;
+                const dx = mouseX - state.dragStartX;
+                const dy = mouseY - state.dragStartY;
+                state.selectedObject.x += dx;
+                state.selectedObject.y += dy;
+                state.dragStartX = mouseX;
+                state.dragStartY = mouseY;
+                redrawCanvas();
+            });
+
+            canvas.addEventListener('mouseup', () => { state.isDragging = false; });
+            canvas.addEventListener('mouseleave', () => { state.isDragging = false; });
+            
+            canvas.addEventListener('wheel', (e) => {
+                if (state.backgroundImage.img) {
+                    e.preventDefault();
+                    const scaleAmount = e.deltaY * -0.001;
+                    state.backgroundImage.scale = Math.max(0.1, state.backgroundImage.scale * (1 + scaleAmount));
+                    redrawCanvas();
+                }
+            });
+        }
+
+        window.onload = () => {
+            redrawCanvas();
+            setupEventListeners();
+        };
+    </script>
+</body>
+</html>
