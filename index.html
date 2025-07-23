@@ -68,6 +68,10 @@
                     <h2 class="text-2xl font-bold border-b-2 border-purple-500 pb-2 mb-4">3. 텍스트 설정</h2>
                     <div id="style-editor-content" class="hidden space-y-4">
                         <div>
+                            <label for="edit-text-area" class="block text-sm font-medium text-gray-300 mb-1">텍스트 내용 수정</label>
+                            <textarea id="edit-text-area" rows="3" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 focus:ring-2 focus:ring-purple-500 focus:outline-none transition"></textarea>
+                        </div>
+                        <div>
                             <label for="font-select" class="block text-sm font-medium text-gray-300 mb-1">폰트 선택</label>
                             <select id="font-select" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 focus:ring-2 focus:ring-purple-500 focus:outline-none transition">
                                 <option value="Black Han Sans" class="font-black-han-sans">Black Han Sans (굵은 제목)</option>
@@ -138,6 +142,7 @@
         const textLayersContainer = document.getElementById('text-layers');
         const styleEditorContent = document.getElementById('style-editor-content');
         const styleEditorPlaceholder = document.getElementById('style-editor-placeholder');
+        const editTextArea = document.getElementById('edit-text-area');
         const fontSelect = document.getElementById('font-select');
         const fontSizeInput = document.getElementById('font-size');
         const fontSizeValue = document.getElementById('font-size-value');
@@ -247,6 +252,7 @@
             if (obj && obj.type === 'text') {
                 styleEditorContent.classList.remove('hidden');
                 styleEditorPlaceholder.classList.add('hidden');
+                editTextArea.value = obj.text;
                 fontSelect.value = obj.font;
                 fontSizeInput.value = obj.size;
                 fontSizeValue.textContent = obj.size;
@@ -309,6 +315,7 @@
             const updateSelectedObjectStyle = () => {
                 if (state.selectedObject && state.selectedObject.type === 'text') {
                     const obj = state.selectedObject;
+                    obj.text = editTextArea.value;
                     obj.font = fontSelect.value;
                     obj.size = fontSizeInput.value;
                     obj.color = fontColorInput.value;
@@ -320,6 +327,7 @@
                 }
             };
             
+            editTextArea.addEventListener('input', updateSelectedObjectStyle);
             fontSelect.addEventListener('change', updateSelectedObjectStyle);
             fontSizeInput.addEventListener('input', (e) => { fontSizeValue.textContent = e.target.value; updateSelectedObjectStyle(); });
             fontColorInput.addEventListener('input', updateSelectedObjectStyle);
