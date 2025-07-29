@@ -49,6 +49,10 @@
                     <h2 class="text-2xl font-bold border-b-2 border-purple-500 pb-2 mb-4">1. 배경 이미지</h2>
                     <input type="file" id="bg-image-input" accept="image/*" class="block w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-purple-600 file:text-white hover:file:bg-purple-700 cursor-pointer">
                     <p class="text-xs text-gray-500 mt-2">파일을 선택하거나, 복사한 이미지를 페이지에 붙여넣기(Ctrl+V) 하세요.</p>
+                    <div class="flex items-center justify-between pt-4 border-t border-gray-700">
+                        <label for="guides-enabled" class="text-sm font-medium text-gray-300">고정 가이드 선 표시</label>
+                        <input type="checkbox" id="guides-enabled" class="h-4 w-4 rounded border-gray-300 text-purple-600 focus:ring-purple-500" checked>
+                    </div>
                 </div>
 
                 <!-- 2. 텍스트 추가 -->
@@ -137,6 +141,7 @@
 
         // 컨트롤 패널 요소
         const bgImageInput = document.getElementById('bg-image-input');
+        const guidesEnabledCheckbox = document.getElementById('guides-enabled');
         const newTextInput = document.getElementById('new-text-input');
         const addTextBtn = document.getElementById('add-text-btn');
         const textLayersContainer = document.getElementById('text-layers');
@@ -164,8 +169,13 @@
             isDragging: false,
             dragStartX: 0,
             dragStartY: 0,
-            nextTextId: 0
+            nextTextId: 0,
+            guidesEnabled: true // 고정 가이드 선 표시 여부
         };
+        
+        // 고정 가이드 선 좌표 (샘플 이미지 기반으로 조정)
+        const GUIDE_X = 50; // 세로 가이드 선 X 좌표 (B, H 정렬)
+        const GUIDE_Y = 680; // 가로 가이드 선 Y 좌표 (하단 정보 정렬)
 
         // 캔버스 다시 그리기
         function redrawCanvas() {
@@ -185,10 +195,32 @@
                 ctx.textBaseline = 'middle';
                 ctx.fillText('배경 이미지를 추가하거나 붙여넣으세요.', canvas.width / 2, canvas.height / 2);
             }
+            
+            // 고정 가이드 선 그리기
+            if (state.guidesEnabled) {
+                ctx.save();
+                ctx.setLineDash([5, 5]);
+                ctx.strokeStyle = 'rgba(255, 255, 0, 0.7)'; // Yellow, semi-transparent
+                ctx.lineWidth = 1;
+
+                // Vertical line (left alignment)
+                ctx.beginPath();
+                ctx.moveTo(GUIDE_X, 0);
+                ctx.lineTo(GUIDE_X, canvas.height);
+                ctx.stroke();
+
+                // Horizontal line (bottom alignment)
+                ctx.beginPath();
+                ctx.moveTo(0, GUIDE_Y);
+                ctx.lineTo(canvas.width, GUIDE_Y);
+                ctx.stroke();
+
+                ctx.restore();
+            }
 
             state.texts.forEach(text => {
                 ctx.font = `${text.weight || '700'} ${text.size}px '${text.font}'`;
-                ctx.textAlign = 'center';
+                ctx.textAlign = 'left'; // 왼쪽 정렬로 변경
                 ctx.textBaseline = 'middle';
                 const lines = text.text.split('\n');
                 const lineHeight = text.size * 1.2;
@@ -234,7 +266,6 @@
                     e.stopPropagation();
                     state.texts = state.texts.filter(t => t.id !== text.id);
                     if (state.selectedObject && state.selectedObject.id === text.id) {
-                        state.selectedObject = null;
                         selectObject(null);
                     }
                     updateTextLayersUI();
@@ -295,13 +326,17 @@
                 const file = e.clipboardData.files[0];
                 if (file) { handleImageFile(file); e.preventDefault(); }
             });
+            guidesEnabledCheckbox.addEventListener('change', (e) => {
+                state.guidesEnabled = e.target.checked;
+                redrawCanvas();
+            });
 
             addTextBtn.addEventListener('click', () => {
                 const textContent = newTextInput.value;
                 if (!textContent.trim()) return;
                 const newText = {
                     id: state.nextTextId++, type: 'text', text: textContent,
-                    x: canvas.width / 2, y: canvas.height / 2,
+                    x: GUIDE_X, y: canvas.height / 2, // 가이드 선에 맞춰서 추가
                     font: 'Black Han Sans', size: 100, color: '#FFFFFF', weight: '900',
                     outlineEnabled: true, outlineColor: '#000000', outlineWidth: 5
                 };
@@ -339,14 +374,22 @@
             outlineColorInput.addEventListener('input', updateSelectedObjectStyle);
 
             downloadBtn.addEventListener('click', () => {
-                let filename = filenameInput.value.trim();
-                if (!filename) {
-                    filename = 'thumbnail';
-                }
+                let filename = filenameInput.value.trim() || 'thumbnail';
+                
+                // 다운로드를 위해 가이드 선을 잠시 숨깁니다.
+                const originalGuidesState = state.guidesEnabled;
+                state.guidesEnabled = false;
+                redrawCanvas();
+
+                // 다운로드 링크 생성
                 const link = document.createElement('a');
                 link.download = `${filename}.png`;
                 link.href = canvas.toDataURL('image/png');
                 link.click();
+
+                // 가이드 선 상태를 원래대로 복구합니다.
+                state.guidesEnabled = originalGuidesState;
+                redrawCanvas();
             });
 
             canvas.addEventListener('mousedown', (e) => {
@@ -365,12 +408,15 @@
                     const text = state.texts[i];
                     const lines = text.text.split('\n');
                     const lineHeight = text.size * 1.2;
-                    const totalHeight = lines.length * lineHeight;
+                    const totalHeight = (lines.length - 1) * lineHeight + text.size;
+                    const top = text.y - totalHeight / 2;
+                    const bottom = text.y + totalHeight / 2;
                     ctx.font = `${text.weight || '700'} ${text.size}px '${text.font}'`;
+                    ctx.textAlign = 'left'; // Hit test도 왼쪽 정렬 기준
                     const textWidth = Math.max(...lines.map(line => ctx.measureText(line).width));
 
-                    if (mouseX > text.x - textWidth / 2 && mouseX < text.x + textWidth / 2 &&
-                        mouseY > text.y - totalHeight / 2 && mouseY < text.y + totalHeight / 2) {
+                    if (mouseX > text.x && mouseX < text.x + textWidth &&
+                        mouseY > top && mouseY < bottom) {
                         selectObject(text);
                         objectSelected = true;
                         break;
@@ -390,6 +436,7 @@
                 const dy = mouseY - state.dragStartY;
                 state.selectedObject.x += dx;
                 state.selectedObject.y += dy;
+                
                 state.dragStartX = mouseX;
                 state.dragStartY = mouseY;
                 redrawCanvas();
