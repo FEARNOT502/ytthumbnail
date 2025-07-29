@@ -34,73 +34,76 @@
             <p class="text-gray-400 mt-2">공연 직캠 썸네일 만들기</p>
         </header>
 
-        <div class="flex flex-col gap-8">
-            <!-- 캔버스 미리보기 -->
-            <div class="w-full">
+        <div class="flex flex-col lg:flex-row gap-8">
+            <!-- Left: Canvas -->
+            <div class="w-full lg:w-2/3">
                 <div class="aspect-w-16 aspect-h-9 bg-gray-800 rounded-2xl shadow-lg flex items-center justify-center overflow-hidden">
                      <canvas id="thumbnail-canvas" width="1280" height="720" class="w-full h-full object-contain cursor-grab"></canvas>
                 </div>
             </div>
 
-            <!-- 컨트롤 패널 -->
-            <div class="w-full bg-gray-800 p-6 rounded-2xl shadow-lg grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                <!-- 1. 배경 이미지 -->
-                <div class="space-y-4">
-                    <h2 class="text-2xl font-bold border-b-2 border-purple-500 pb-2 mb-4">1. 배경 이미지</h2>
-                    <input type="file" id="bg-image-input" accept="image/*" class="block w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-purple-600 file:text-white hover:file:bg-purple-700 cursor-pointer">
-                    <p class="text-xs text-gray-500 mt-2">파일을 선택하거나, 복사한 이미지를 페이지에 붙여넣기(Ctrl+V) 하세요.</p>
-                    <div class="flex items-center justify-between pt-4 border-t border-gray-700">
-                        <label for="guides-enabled" class="text-sm font-medium text-gray-300">고정 가이드 선 표시</label>
-                        <input type="checkbox" id="guides-enabled" class="h-4 w-4 rounded border-gray-300 text-purple-600 focus:ring-purple-500" checked>
+            <!-- Right: Controls -->
+            <div class="w-full lg:w-1/3 flex flex-col gap-6">
+                <!-- Group 1 & 2 -->
+                <div class="bg-gray-800 p-6 rounded-2xl shadow-lg">
+                    <!-- 1. 배경 이미지 -->
+                    <div class="space-y-4">
+                        <h2 class="text-xl font-bold border-b-2 border-purple-500 pb-2 mb-4">1. 배경 이미지</h2>
+                        <input type="file" id="bg-image-input" accept="image/*" class="block w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-purple-600 file:text-white hover:file:bg-purple-700 cursor-pointer">
+                        <p class="text-xs text-gray-500 mt-2">파일 선택 또는 이미지 붙여넣기(Ctrl+V)</p>
+                        <div class="flex items-center justify-between pt-2">
+                            <label for="guides-enabled" class="text-sm font-medium text-gray-300">고정 가이드 선 표시</label>
+                            <input type="checkbox" id="guides-enabled" class="h-4 w-4 rounded border-gray-300 text-purple-600 focus:ring-purple-500" checked>
+                        </div>
+                    </div>
+                    <hr class="border-gray-700 my-6">
+                    <!-- 2. 텍스트 추가 -->
+                    <div class="space-y-4">
+                        <h2 class="text-xl font-bold border-b-2 border-purple-500 pb-2 mb-4">2. 텍스트 추가</h2>
+                        <div class="space-y-2">
+                            <textarea id="new-text-input" rows="2" placeholder="Shift+Enter로 줄바꿈" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 focus:ring-2 focus:ring-purple-500 focus:outline-none transition"></textarea>
+                            <button id="add-text-btn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg transition">텍스트 추가</button>
+                        </div>
+                        <div id="text-layers" class="mt-4 space-y-2 max-h-32 overflow-y-auto">
+                            <!-- Layer list -->
+                        </div>
                     </div>
                 </div>
 
-                <!-- 2. 텍스트 추가 -->
-                <div class="space-y-4">
-                    <h2 class="text-2xl font-bold border-b-2 border-purple-500 pb-2 mb-4">2. 텍스트 추가</h2>
-                    <div class="space-y-2">
-                        <textarea id="new-text-input" rows="2" placeholder="여기에 텍스트를 입력하세요.&#10;Shift+Enter로 줄바꿈 가능" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 focus:ring-2 focus:ring-purple-500 focus:outline-none transition"></textarea>
-                        <button id="add-text-btn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg transition">텍스트 추가</button>
-                    </div>
-                    <div id="text-layers" class="mt-4 space-y-2 max-h-48 overflow-y-auto">
-                        <!-- 추가된 텍스트 레이어가 여기에 표시됩니다. -->
-                    </div>
-                </div>
-
-                <!-- 3. 텍스트 설정 -->
-                <div id="style-editor" class="space-y-4 md:col-span-2 lg:col-span-1">
-                    <h2 class="text-2xl font-bold border-b-2 border-purple-500 pb-2 mb-4">3. 텍스트 설정</h2>
-                    <div id="style-editor-content" class="hidden space-y-4">
+                <!-- Group 3 -->
+                <div class="bg-gray-800 p-6 rounded-2xl shadow-lg flex-grow flex flex-col min-h-0">
+                    <h2 class="text-xl font-bold border-b-2 border-purple-500 pb-2 mb-4">3. 텍스트 설정</h2>
+                    <div id="style-editor-content" class="hidden space-y-4 flex-grow overflow-y-auto pr-2">
                         <div>
-                            <label for="edit-text-area" class="block text-sm font-medium text-gray-300 mb-1">텍스트 내용 수정</label>
+                            <label for="edit-text-area" class="block text-sm font-medium text-gray-300 mb-1">내용 수정</label>
                             <textarea id="edit-text-area" rows="3" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 focus:ring-2 focus:ring-purple-500 focus:outline-none transition"></textarea>
                         </div>
                         <div>
-                            <label for="font-select" class="block text-sm font-medium text-gray-300 mb-1">폰트 선택</label>
+                            <label for="font-select" class="block text-sm font-medium text-gray-300 mb-1">폰트</label>
                             <select id="font-select" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 focus:ring-2 focus:ring-purple-500 focus:outline-none transition">
-                                <option value="Black Han Sans" class="font-black-han-sans">Black Han Sans (굵은 제목)</option>
-                                <option value="Jua" class="font-jua">Jua (귀여운 제목)</option>
-                                <option value="Gasoek One" class="font-gasoek-one">Gasoek One (개성있는 제목)</option>
-                                <option value="Do Hyeon" class="font-do-hyeon">Do Hyeon (단정한 제목)</option>
-                                <option value="Gugi" class="font-gugi">Gugi (복고풍)</option>
-                                <option value="East Sea Dokdo" class="font-east-sea-dokdo">East Sea Dokdo (붓글씨)</option>
-                                <option value="Nanum Pen Script" class="font-nanum-pen-script">Nanum Pen Script (손글씨)</option>
-                                <option value="Noto Sans KR" class="font-noto-sans-kr">Noto Sans KR (기본 본문)</option>
+                                <option value="Black Han Sans" class="font-black-han-sans">Black Han Sans</option>
+                                <option value="Jua" class="font-jua">Jua</option>
+                                <option value="Gasoek One" class="font-gasoek-one">Gasoek One</option>
+                                <option value="Do Hyeon" class="font-do-hyeon">Do Hyeon</option>
+                                <option value="Gugi" class="font-gugi">Gugi</option>
+                                <option value="East Sea Dokdo" class="font-east-sea-dokdo">East Sea Dokdo</option>
+                                <option value="Nanum Pen Script" class="font-nanum-pen-script">Nanum Pen Script</option>
+                                <option value="Noto Sans KR" class="font-noto-sans-kr">Noto Sans KR</option>
                             </select>
                         </div>
                         <div class="grid grid-cols-2 gap-4">
                             <div>
-                                <label for="font-size" class="block text-sm font-medium text-gray-300 mb-1">글자 크기: <span id="font-size-value">80</span>px</label>
+                                <label for="font-size" class="block text-sm font-medium text-gray-300 mb-1">크기: <span id="font-size-value">80</span>px</label>
                                 <input type="range" id="font-size" min="10" max="250" value="80" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-pink-500">
                             </div>
                             <div>
-                                <label for="font-color" class="block text-sm font-medium text-gray-300 mb-1">글자 색상</label>
+                                <label for="font-color" class="block text-sm font-medium text-gray-300 mb-1">색상</label>
                                 <input type="color" id="font-color" value="#FFFFFF" class="w-full h-10 bg-gray-700 border border-gray-600 rounded-lg cursor-pointer p-1">
                             </div>
                         </div>
                         <div class="space-y-2 pt-4 border-t border-gray-700">
                             <div class="flex items-center justify-between">
-                                <label for="outline-enabled" class="text-sm font-medium text-gray-300">윤곽선 사용</label>
+                                <label for="outline-enabled" class="text-sm font-medium text-gray-300">윤곽선</label>
                                 <input type="checkbox" id="outline-enabled" class="h-4 w-4 rounded border-gray-300 text-purple-600 focus:ring-purple-500">
                             </div>
                             <div id="outline-controls" class="hidden space-y-2">
@@ -117,17 +120,17 @@
                             </div>
                         </div>
                     </div>
-                     <p id="style-editor-placeholder" class="text-gray-500 text-sm">수정할 텍스트를 선택하세요.</p>
+                     <p id="style-editor-placeholder" class="text-gray-500 text-sm flex-grow flex items-center justify-center">수정할 텍스트를 선택하세요.</p>
                 </div>
 
-                <!-- 4. 저장하기 -->
-                <div class="space-y-4">
-                    <h2 class="text-2xl font-bold border-b-2 border-purple-500 pb-2 mb-4">4. 저장하기</h2>
-                     <div>
+                <!-- Group 4 -->
+                <div class="bg-gray-800 p-6 rounded-2xl shadow-lg">
+                    <h2 class="text-xl font-bold border-b-2 border-purple-500 pb-2 mb-4">4. 저장하기</h2>
+                     <div class="space-y-2">
                         <label for="filename-input" class="block text-sm font-medium text-gray-300 mb-1">파일 이름</label>
                         <input type="text" id="filename-input" value="thumbnail" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 focus:ring-2 focus:ring-purple-500 focus:outline-none transition">
                     </div>
-                    <button id="download-btn" class="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold py-3 px-4 rounded-lg shadow-lg transform hover:scale-105 transition-transform duration-300 ease-in-out">
+                    <button id="download-btn" class="w-full mt-4 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold py-3 px-4 rounded-lg shadow-lg transform hover:scale-105 transition-transform duration-300 ease-in-out">
                         썸네일 다운로드 (PNG)
                     </button>
                 </div>
@@ -170,12 +173,12 @@
             dragStartX: 0,
             dragStartY: 0,
             nextTextId: 0,
-            guidesEnabled: true // 고정 가이드 선 표시 여부
+            guidesEnabled: true 
         };
         
-        // 고정 가이드 선 좌표 (샘플 이미지 기반으로 조정)
-        const GUIDE_X = 50; // 세로 가이드 선 X 좌표 (B, H 정렬)
-        const GUIDE_Y = 680; // 가로 가이드 선 Y 좌표 (하단 정보 정렬)
+        // 고정 가이드 선 좌표
+        const GUIDE_X = 50; 
+        const GUIDE_Y = 680;
 
         // 캔버스 다시 그리기
         function redrawCanvas() {
@@ -196,31 +199,25 @@
                 ctx.fillText('배경 이미지를 추가하거나 붙여넣으세요.', canvas.width / 2, canvas.height / 2);
             }
             
-            // 고정 가이드 선 그리기
             if (state.guidesEnabled) {
                 ctx.save();
                 ctx.setLineDash([5, 5]);
-                ctx.strokeStyle = 'rgba(255, 255, 0, 0.7)'; // Yellow, semi-transparent
+                ctx.strokeStyle = 'rgba(255, 255, 0, 0.7)';
                 ctx.lineWidth = 1;
-
-                // Vertical line (left alignment)
                 ctx.beginPath();
                 ctx.moveTo(GUIDE_X, 0);
                 ctx.lineTo(GUIDE_X, canvas.height);
                 ctx.stroke();
-
-                // Horizontal line (bottom alignment)
                 ctx.beginPath();
                 ctx.moveTo(0, GUIDE_Y);
                 ctx.lineTo(canvas.width, GUIDE_Y);
                 ctx.stroke();
-
                 ctx.restore();
             }
 
             state.texts.forEach(text => {
                 ctx.font = `${text.weight || '700'} ${text.size}px '${text.font}'`;
-                ctx.textAlign = 'left'; // 왼쪽 정렬로 변경
+                ctx.textAlign = 'left'; 
                 ctx.textBaseline = 'middle';
                 const lines = text.text.split('\n');
                 const lineHeight = text.size * 1.2;
@@ -336,7 +333,7 @@
                 if (!textContent.trim()) return;
                 const newText = {
                     id: state.nextTextId++, type: 'text', text: textContent,
-                    x: GUIDE_X, y: canvas.height / 2, // 가이드 선에 맞춰서 추가
+                    x: GUIDE_X, y: canvas.height / 2,
                     font: 'Black Han Sans', size: 100, color: '#FFFFFF', weight: '900',
                     outlineEnabled: true, outlineColor: '#000000', outlineWidth: 5
                 };
@@ -376,18 +373,15 @@
             downloadBtn.addEventListener('click', () => {
                 let filename = filenameInput.value.trim() || 'thumbnail';
                 
-                // 다운로드를 위해 가이드 선을 잠시 숨깁니다.
                 const originalGuidesState = state.guidesEnabled;
                 state.guidesEnabled = false;
                 redrawCanvas();
 
-                // 다운로드 링크 생성
                 const link = document.createElement('a');
                 link.download = `${filename}.png`;
                 link.href = canvas.toDataURL('image/png');
                 link.click();
 
-                // 가이드 선 상태를 원래대로 복구합니다.
                 state.guidesEnabled = originalGuidesState;
                 redrawCanvas();
             });
@@ -412,7 +406,7 @@
                     const top = text.y - totalHeight / 2;
                     const bottom = text.y + totalHeight / 2;
                     ctx.font = `${text.weight || '700'} ${text.size}px '${text.font}'`;
-                    ctx.textAlign = 'left'; // Hit test도 왼쪽 정렬 기준
+                    ctx.textAlign = 'left';
                     const textWidth = Math.max(...lines.map(line => ctx.measureText(line).width));
 
                     if (mouseX > text.x && mouseX < text.x + textWidth &&
