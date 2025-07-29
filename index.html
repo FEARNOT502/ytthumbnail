@@ -36,103 +36,99 @@
 
         <div class="flex flex-col lg:flex-row gap-8">
             <!-- Left: Canvas -->
-            <div class="w-full lg:w-2/3">
+            <div class="w-full lg:w-7/12">
                 <div class="aspect-w-16 aspect-h-9 bg-gray-800 rounded-2xl shadow-lg flex items-center justify-center overflow-hidden">
                      <canvas id="thumbnail-canvas" width="1280" height="720" class="w-full h-full object-contain cursor-grab"></canvas>
                 </div>
             </div>
 
             <!-- Right: Controls -->
-            <div class="w-full lg:w-1/3 flex flex-col gap-6">
-                <!-- Group 1 & 2 -->
-                <div class="bg-gray-800 p-6 rounded-2xl shadow-lg">
-                    <!-- 1. 배경 이미지 -->
-                    <div class="space-y-4">
+            <div class="w-full lg:w-5/12 grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Column 1: Image & Add Text -->
+                <div class="flex flex-col gap-6">
+                    <div class="bg-gray-800 p-6 rounded-2xl shadow-lg">
                         <h2 class="text-xl font-bold border-b-2 border-purple-500 pb-2 mb-4">1. 배경 이미지</h2>
                         <input type="file" id="bg-image-input" accept="image/*" class="block w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-purple-600 file:text-white hover:file:bg-purple-700 cursor-pointer">
                         <p class="text-xs text-gray-500 mt-2">파일 선택 또는 이미지 붙여넣기(Ctrl+V)</p>
-                        <div class="flex items-center justify-between pt-2">
-                            <label for="guides-enabled" class="text-sm font-medium text-gray-300">고정 가이드 선 표시</label>
+                        <div class="flex items-center justify-between pt-2 mt-2">
+                            <label for="guides-enabled" class="text-sm font-medium text-gray-300">고정 가이드 선</label>
                             <input type="checkbox" id="guides-enabled" class="h-4 w-4 rounded border-gray-300 text-purple-600 focus:ring-purple-500" checked>
                         </div>
                     </div>
-                    <hr class="border-gray-700 my-6">
-                    <!-- 2. 텍스트 추가 -->
-                    <div class="space-y-4">
-                        <h2 class="text-xl font-bold border-b-2 border-purple-500 pb-2 mb-4">2. 텍스트 추가</h2>
+                    <div class="bg-gray-800 p-6 rounded-2xl shadow-lg flex-grow flex flex-col">
+                        <h2 class="text-xl font-bold border-b-2 border-purple-500 pb-2 mb-4 flex-shrink-0">2. 텍스트 추가</h2>
                         <div class="space-y-2">
                             <textarea id="new-text-input" rows="2" placeholder="Shift+Enter로 줄바꿈" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 focus:ring-2 focus:ring-purple-500 focus:outline-none transition"></textarea>
                             <button id="add-text-btn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg transition">텍스트 추가</button>
                         </div>
-                        <div id="text-layers" class="mt-4 space-y-2 max-h-32 overflow-y-auto">
+                        <div id="text-layers" class="mt-4 space-y-2 flex-grow overflow-y-auto pr-2">
                             <!-- Layer list -->
                         </div>
                     </div>
                 </div>
 
-                <!-- Group 3 -->
-                <div class="bg-gray-800 p-6 rounded-2xl shadow-lg flex-grow flex flex-col min-h-0">
-                    <h2 class="text-xl font-bold border-b-2 border-purple-500 pb-2 mb-4">3. 텍스트 설정</h2>
-                    <div id="style-editor-content" class="hidden space-y-4 flex-grow overflow-y-auto pr-2">
-                        <div>
-                            <label for="edit-text-area" class="block text-sm font-medium text-gray-300 mb-1">내용 수정</label>
-                            <textarea id="edit-text-area" rows="3" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 focus:ring-2 focus:ring-purple-500 focus:outline-none transition"></textarea>
-                        </div>
-                        <div>
-                            <label for="font-select" class="block text-sm font-medium text-gray-300 mb-1">폰트</label>
-                            <select id="font-select" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 focus:ring-2 focus:ring-purple-500 focus:outline-none transition">
-                                <option value="Black Han Sans" class="font-black-han-sans">Black Han Sans</option>
-                                <option value="Jua" class="font-jua">Jua</option>
-                                <option value="Gasoek One" class="font-gasoek-one">Gasoek One</option>
-                                <option value="Do Hyeon" class="font-do-hyeon">Do Hyeon</option>
-                                <option value="Gugi" class="font-gugi">Gugi</option>
-                                <option value="East Sea Dokdo" class="font-east-sea-dokdo">East Sea Dokdo</option>
-                                <option value="Nanum Pen Script" class="font-nanum-pen-script">Nanum Pen Script</option>
-                                <option value="Noto Sans KR" class="font-noto-sans-kr">Noto Sans KR</option>
-                            </select>
-                        </div>
-                        <div class="grid grid-cols-2 gap-4">
+                <!-- Column 2: Settings & Save -->
+                <div class="flex flex-col gap-6">
+                    <div class="bg-gray-800 p-6 rounded-2xl shadow-lg flex-grow flex flex-col min-h-0">
+                        <h2 class="text-xl font-bold border-b-2 border-purple-500 pb-2 mb-4 flex-shrink-0">3. 텍스트 설정</h2>
+                        <div id="style-editor-content" class="space-y-4 flex-grow overflow-y-auto pr-2">
                             <div>
-                                <label for="font-size" class="block text-sm font-medium text-gray-300 mb-1">크기: <span id="font-size-value">80</span>px</label>
-                                <input type="range" id="font-size" min="10" max="250" value="80" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-pink-500">
+                                <label for="edit-text-area" class="block text-sm font-medium text-gray-300 mb-1">내용 수정</label>
+                                <textarea id="edit-text-area" rows="3" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 focus:ring-2 focus:ring-purple-500 focus:outline-none transition"></textarea>
                             </div>
                             <div>
-                                <label for="font-color" class="block text-sm font-medium text-gray-300 mb-1">색상</label>
-                                <input type="color" id="font-color" value="#FFFFFF" class="w-full h-10 bg-gray-700 border border-gray-600 rounded-lg cursor-pointer p-1">
+                                <label for="font-select" class="block text-sm font-medium text-gray-300 mb-1">폰트</label>
+                                <select id="font-select" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 focus:ring-2 focus:ring-purple-500 focus:outline-none transition">
+                                    <option value="Black Han Sans" class="font-black-han-sans">Black Han Sans</option>
+                                    <option value="Jua" class="font-jua">Jua</option>
+                                    <option value="Gasoek One" class="font-gasoek-one">Gasoek One</option>
+                                    <option value="Do Hyeon" class="font-do-hyeon">Do Hyeon</option>
+                                    <option value="Gugi" class="font-gugi">Gugi</option>
+                                    <option value="East Sea Dokdo" class="font-east-sea-dokdo">East Sea Dokdo</option>
+                                    <option value="Nanum Pen Script" class="font-nanum-pen-script">Nanum Pen Script</option>
+                                    <option value="Noto Sans KR" class="font-noto-sans-kr">Noto Sans KR</option>
+                                </select>
                             </div>
-                        </div>
-                        <div class="space-y-2 pt-4 border-t border-gray-700">
-                            <div class="flex items-center justify-between">
-                                <label for="outline-enabled" class="text-sm font-medium text-gray-300">윤곽선</label>
-                                <input type="checkbox" id="outline-enabled" class="h-4 w-4 rounded border-gray-300 text-purple-600 focus:ring-purple-500">
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label for="font-size" class="block text-sm font-medium text-gray-300 mb-1">크기: <span id="font-size-value">80</span>px</label>
+                                    <input type="range" id="font-size" min="10" max="250" value="80" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-pink-500">
+                                </div>
+                                <div>
+                                    <label for="font-color" class="block text-sm font-medium text-gray-300 mb-1">색상</label>
+                                    <input type="color" id="font-color" value="#FFFFFF" class="w-full h-10 bg-gray-700 border border-gray-600 rounded-lg cursor-pointer p-1">
+                                </div>
                             </div>
-                            <div id="outline-controls" class="hidden space-y-2">
-                                <div class="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <label for="outline-width" class="block text-sm font-medium text-gray-300 mb-1">두께: <span id="outline-width-value">5</span>px</label>
-                                        <input type="range" id="outline-width" min="1" max="30" value="5" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-pink-500">
-                                    </div>
-                                    <div>
-                                        <label for="outline-color" class="block text-sm font-medium text-gray-300 mb-1">색상</label>
-                                        <input type="color" id="outline-color" value="#000000" class="w-full h-10 bg-gray-700 border border-gray-600 rounded-lg cursor-pointer p-1">
+                            <div class="space-y-2 pt-4 border-t border-gray-700">
+                                <div class="flex items-center justify-between">
+                                    <label for="outline-enabled" class="text-sm font-medium text-gray-300">윤곽선</label>
+                                    <input type="checkbox" id="outline-enabled" class="h-4 w-4 rounded border-gray-300 text-purple-600 focus:ring-purple-500">
+                                </div>
+                                <div id="outline-controls" class="hidden space-y-2">
+                                    <div class="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label for="outline-width" class="block text-sm font-medium text-gray-300 mb-1">두께: <span id="outline-width-value">5</span>px</label>
+                                            <input type="range" id="outline-width" min="1" max="30" value="5" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-pink-500">
+                                        </div>
+                                        <div>
+                                            <label for="outline-color" class="block text-sm font-medium text-gray-300 mb-1">색상</label>
+                                            <input type="color" id="outline-color" value="#000000" class="w-full h-10 bg-gray-700 border border-gray-600 rounded-lg cursor-pointer p-1">
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                     <p id="style-editor-placeholder" class="text-gray-500 text-sm flex-grow flex items-center justify-center">수정할 텍스트를 선택하세요.</p>
-                </div>
-
-                <!-- Group 4 -->
-                <div class="bg-gray-800 p-6 rounded-2xl shadow-lg">
-                    <h2 class="text-xl font-bold border-b-2 border-purple-500 pb-2 mb-4">4. 저장하기</h2>
-                     <div class="space-y-2">
-                        <label for="filename-input" class="block text-sm font-medium text-gray-300 mb-1">파일 이름</label>
-                        <input type="text" id="filename-input" value="thumbnail" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 focus:ring-2 focus:ring-purple-500 focus:outline-none transition">
+                    <div class="bg-gray-800 p-6 rounded-2xl shadow-lg flex-shrink-0">
+                        <h2 class="text-xl font-bold border-b-2 border-purple-500 pb-2 mb-4">4. 저장하기</h2>
+                         <div class="space-y-2">
+                            <label for="filename-input" class="block text-sm font-medium text-gray-300 mb-1">파일 이름</label>
+                            <input type="text" id="filename-input" value="thumbnail" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 focus:ring-2 focus:ring-purple-500 focus:outline-none transition">
+                        </div>
+                        <button id="download-btn" class="w-full mt-4 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold py-3 px-4 rounded-lg shadow-lg transform hover:scale-105 transition-transform duration-300 ease-in-out">
+                            썸네일 다운로드 (PNG)
+                        </button>
                     </div>
-                    <button id="download-btn" class="w-full mt-4 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold py-3 px-4 rounded-lg shadow-lg transform hover:scale-105 transition-transform duration-300 ease-in-out">
-                        썸네일 다운로드 (PNG)
-                    </button>
                 </div>
             </div>
         </div>
@@ -149,7 +145,6 @@
         const addTextBtn = document.getElementById('add-text-btn');
         const textLayersContainer = document.getElementById('text-layers');
         const styleEditorContent = document.getElementById('style-editor-content');
-        const styleEditorPlaceholder = document.getElementById('style-editor-placeholder');
         const editTextArea = document.getElementById('edit-text-area');
         const fontSelect = document.getElementById('font-select');
         const fontSizeInput = document.getElementById('font-size');
@@ -157,14 +152,12 @@
         const fontColorInput = document.getElementById('font-color');
         const filenameInput = document.getElementById('filename-input');
         const downloadBtn = document.getElementById('download-btn');
-        // 윤곽선 요소
         const outlineEnabledCheckbox = document.getElementById('outline-enabled');
         const outlineControls = document.getElementById('outline-controls');
         const outlineWidthInput = document.getElementById('outline-width');
         const outlineWidthValue = document.getElementById('outline-width-value');
         const outlineColorInput = document.getElementById('outline-color');
 
-        // 상태 관리
         let state = {
             backgroundImage: { img: null, x: canvas.width / 2, y: canvas.height / 2, scale: 1 },
             texts: [],
@@ -176,11 +169,9 @@
             guidesEnabled: true 
         };
         
-        // 고정 가이드 선 좌표
         const GUIDE_X = 50; 
         const GUIDE_Y = 680;
 
-        // 캔버스 다시 그리기
         function redrawCanvas() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             ctx.fillStyle = '#1a202c';
@@ -242,7 +233,6 @@
             });
         }
 
-        // 텍스트 레이어 UI 업데이트
         function updateTextLayersUI() {
             textLayersContainer.innerHTML = '';
             state.texts.forEach(text => {
@@ -274,12 +264,10 @@
             });
         }
         
-        // 객체 선택
         function selectObject(obj) {
             state.selectedObject = obj;
             if (obj && obj.type === 'text') {
-                styleEditorContent.classList.remove('hidden');
-                styleEditorPlaceholder.classList.add('hidden');
+                styleEditorContent.classList.remove('opacity-50', 'pointer-events-none');
                 editTextArea.value = obj.text;
                 fontSelect.value = obj.font;
                 fontSizeInput.value = obj.size;
@@ -291,14 +279,19 @@
                 outlineWidthValue.textContent = obj.outlineWidth;
                 outlineColorInput.value = obj.outlineColor;
             } else {
-                styleEditorContent.classList.add('hidden');
-                styleEditorPlaceholder.classList.remove('hidden');
+                styleEditorContent.classList.add('opacity-50', 'pointer-events-none');
+                editTextArea.value = '';
+                fontSelect.value = 'Black Han Sans';
+                fontSizeInput.value = 80;
+                fontSizeValue.textContent = 80;
+                fontColorInput.value = '#FFFFFF';
+                outlineEnabledCheckbox.checked = false;
+                outlineControls.style.display = 'none';
             }
             updateTextLayersUI();
             redrawCanvas();
         }
 
-        // 이미지 파일 처리
         function handleImageFile(file) {
             if (!file || !file.type.startsWith('image/')) return;
             const reader = new FileReader();
@@ -316,7 +309,6 @@
             reader.readAsDataURL(file);
         }
 
-        // 이벤트 리스너 설정
         function setupEventListeners() {
             bgImageInput.addEventListener('change', (e) => handleImageFile(e.target.files[0]));
             window.addEventListener('paste', (e) => {
@@ -447,6 +439,9 @@
                     redrawCanvas();
                 }
             });
+            
+            // 초기화 시 텍스트 설정 패널 비활성화
+            selectObject(null);
         }
 
         window.onload = () => {
