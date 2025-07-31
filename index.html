@@ -169,7 +169,8 @@
             guidesEnabled: true 
         };
         
-        const GUIDE_X = 50; 
+        const GUIDE_X_1 = 50; 
+        const GUIDE_X_2 = 1230;
         const GUIDE_Y_1 = 630;
         const GUIDE_Y_2 = 680;
 
@@ -198,8 +199,12 @@
                 ctx.lineWidth = 1;
                 // Vertical line
                 ctx.beginPath();
-                ctx.moveTo(GUIDE_X, 0);
-                ctx.lineTo(GUIDE_X, canvas.height);
+                ctx.moveTo(GUIDE_X_1, 0);
+                ctx.lineTo(GUIDE_X_1, canvas.height);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(GUIDE_X_2, 0);
+                ctx.lineTo(GUIDE_X_2, canvas.height);
                 ctx.stroke();
                 // Horizontal line 1
                 ctx.beginPath();
