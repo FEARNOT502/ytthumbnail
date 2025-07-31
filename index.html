@@ -197,7 +197,7 @@
                 ctx.setLineDash([5, 5]);
                 ctx.strokeStyle = 'rgba(255, 255, 0, 0.7)';
                 ctx.lineWidth = 1;
-                // Vertical line
+                // Vertical lines
                 ctx.beginPath();
                 ctx.moveTo(GUIDE_X_1, 0);
                 ctx.lineTo(GUIDE_X_1, canvas.height);
@@ -206,12 +206,11 @@
                 ctx.moveTo(GUIDE_X_2, 0);
                 ctx.lineTo(GUIDE_X_2, canvas.height);
                 ctx.stroke();
-                // Horizontal line 1
+                // Horizontal lines
                 ctx.beginPath();
                 ctx.moveTo(0, GUIDE_Y_1);
                 ctx.lineTo(canvas.width, GUIDE_Y_1);
                 ctx.stroke();
-                // Horizontal line 2
                 ctx.beginPath();
                 ctx.moveTo(0, GUIDE_Y_2);
                 ctx.lineTo(canvas.width, GUIDE_Y_2);
@@ -338,7 +337,7 @@
                 if (!textContent.trim()) return;
                 const newText = {
                     id: state.nextTextId++, type: 'text', text: textContent,
-                    x: GUIDE_X, y: canvas.height / 2,
+                    x: GUIDE_X_1, y: canvas.height / 2, // FIX: Use GUIDE_X_1
                     font: 'Black Han Sans', size: 100, color: '#FFFFFF', weight: '900',
                     outlineEnabled: true, outlineColor: '#000000', outlineWidth: 5
                 };
